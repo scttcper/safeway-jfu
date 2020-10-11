@@ -1,0 +1,11 @@
+{
+  "root": true,
+  "env": {
+    "node": true,
+    "browser": true
+  },
+  "extends": ["@ctrl/eslint-config"],
+  "rules": {
+    "no-await-in-loop": "off"
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "compileOnSave": false,
+  "compilerOptions": {
+    "moduleResolution": "node",
+    "lib": ["ES2020"],
+    "target": "ES2019",
+    "module": "CommonJS",
+    "esModuleInterop": true,
+    "newLine": "lf",
+    "importHelpers": true,
+    "skipLibCheck": true,
+    "noImplicitAny": false,
+    "noImplicitReturns": true,
+    "noFallthroughCasesInSwitch": true,
+    "noEmitOnError": true,
+    "inlineSourceMap": true,
+    "outDir": "dist"
+  }
+}
