@@ -35,18 +35,30 @@ async function clipCoupons() {
   await page.type('input#label-password[type="password"]', password);
   await page.click('#btnSignIn');
   await page.waitForSelector('.load-more');
+
+  let max = 100;
   while ((await page.$('.load-more')) !== null) {
+    max -= 1;
     await page.click('.load-more');
     await delay(200);
+
+    if (max === 0) {
+      throw new Error('Hit max load-more');
+    }
   }
 
   const allUnclippedCouponButtons = await page.$$('.grid-coupon-btn:not([disabled])');
   const couponCount = allUnclippedCouponButtons.length;
-  console.log({ couponCount });
 
+  max = allUnclippedCouponButtons.length + 5;
   while ((await page.$('.grid-coupon-btn:not([disabled])')) !== null) {
+    max -= 1;
     await page.click('.grid-coupon-btn:not([disabled])');
     await delay(200);
+
+    if (max === 0) {
+      throw new Error('Hit max clips');
+    }
   }
 
   await browser.close();
