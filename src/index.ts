@@ -38,10 +38,10 @@ async function clipCoupons() {
 
   let max = 100;
   while ((await page.$('.load-more')) !== null) {
-    max -= 1;
     await page.click('.load-more');
     await delay(200);
 
+    max -= 1;
     if (max === 0) {
       throw new Error('Hit max load-more');
     }
@@ -52,10 +52,10 @@ async function clipCoupons() {
 
   max = allUnclippedCouponButtons.length + 5;
   while ((await page.$('.grid-coupon-btn:not([disabled])')) !== null) {
-    max -= 1;
     await page.click('.grid-coupon-btn:not([disabled])');
     await delay(200);
 
+    max -= 1;
     if (max === 0) {
       throw new Error('Hit max clips');
     }
