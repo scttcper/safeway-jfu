@@ -1,3 +1,4 @@
+import { join } from 'path';
 import puppeteer from 'puppeteer';
 import dotenv from 'dotenv';
 import delay from 'delay';
@@ -5,17 +6,19 @@ import * as Sentry from '@sentry/node';
 import pino from 'pino';
 import { createWriteStream } from 'pino-logflare';
 
-dotenv.config();
+dotenv.config({ path: join(__dirname, '/../.env') });
 
 Sentry.init({
   dsn: process.env.SENTRY_DSN,
 });
 
-const stream = createWriteStream({
-  sourceToken: process.env.LOGFLARE_SOURCE,
-  apiKey: process.env.LOGFLARE_KEY,
-});
-const logger = pino({}, process.env.LOGFLARE_SOURCE ? stream : undefined);
+const stream = process.env.LOGFLARE_KEY
+  ? createWriteStream({
+      sourceToken: process.env.LOGFLARE_SOURCE,
+      apiKey: process.env.LOGFLARE_KEY,
+    })
+  : undefined;
+const logger = pino({}, stream ? stream : undefined);
 
 const username = process.env.SF_USERNAME;
 const password = process.env.SF_PASSWORD;
