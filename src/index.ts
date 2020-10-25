@@ -23,7 +23,6 @@ const logger = pino({}, stream ? stream : undefined);
 const username = process.env.SF_USERNAME;
 const password = process.env.SF_PASSWORD;
 
-const startTime = new Date();
 const browserPromise = puppeteer.launch({ headless: true });
 
 async function clipCoupons() {
@@ -65,44 +64,48 @@ async function clipCoupons() {
   return couponCount;
 }
 
+const log = {
+  name: 'safeway-jfu',
+  startTime: new Date().toISOString(),
+  isSuccess: true,
+};
+
 if (require.main === module) {
   clipCoupons()
     .then(couponCount => {
-      console.log('success');
-      const message = `success ${couponCount} clipped`;
+      const message = `safeway-jfu success ${couponCount} clipped`;
       logger.info(
         {
-          name: 'safeway-jfu',
-          startTime: startTime.toISOString(),
+          ...log,
           endTime: new Date().toISOString(),
           isSuccess: true,
           msg: message,
+          value: couponCount,
         },
         message,
       );
+      return 0;
     })
-    .catch(async (err: Error) => {
+    .catch((err: Error) => {
       Sentry.captureException(err);
-      const message = `failed ${err.message}`;
+      const message = `safeway-jfu failed ${err.message}`;
       logger.info(
         {
-          name: 'safeway-jfu',
-          startTime: startTime.toISOString(),
+          ...log,
           endTime: new Date().toISOString(),
           isSuccess: false,
           msg: message,
+          value: 0,
         },
         message,
       );
+      return 1;
+    })
+    .then(async code => {
       logger.flush();
       await Sentry.flush();
       await (await browserPromise).close();
-      await delay(800);
-      process.exit(1);
-    })
-    .then(async () => {
-      logger.flush();
-      await delay(800);
-      process.exit(0);
+      await delay(1000);
+      process.exit(code);
     });
 }
