@@ -1,10 +1,12 @@
 import { join } from 'path';
-import puppeteer from 'puppeteer';
-import dotenv from 'dotenv';
-import delay from 'delay';
+import { setTimeout } from 'timers/promises';
+
 import * as Sentry from '@sentry/node';
+import delay from 'delay';
+import dotenv from 'dotenv';
 import pino from 'pino';
 import { createWriteStream } from 'pino-logflare';
+import puppeteer from 'puppeteer';
 
 dotenv.config({ path: join(__dirname, '/../.env') });
 
@@ -18,21 +20,26 @@ const stream = process.env.LOGFLARE_KEY
       apiKey: process.env.LOGFLARE_KEY,
     })
   : undefined;
+// eslint-disable-next-line @typescript-eslint/no-unsafe-argument
 const logger = pino({}, stream ? stream : undefined);
 
 const username = process.env.SF_USERNAME;
 const password = process.env.SF_PASSWORD;
+const headless = process.env.HEADLESS?.toLowerCase() !== 'false' ?? true;
 
-const browserPromise = puppeteer.launch({ headless: true });
+const browserPromise = puppeteer.launch({ headless });
 
 async function clipCoupons() {
   const browser = await browserPromise;
   const page = await browser.newPage();
-  await page.goto('https://www.safeway.com/account/sign-in.html?goto=/justforu/coupons-deals.html');
+  await page.goto(
+    'https://www.safeway.com/account/sign-in.html?goto=/justforu/coupons-deals.html',
+    { waitUntil: 'networkidle0' },
+  );
   await page.waitForSelector('#btnSignIn');
   await page.type('input#label-email[type="text"]', username);
   await page.type('input#label-password[type="password"]', password);
-  await page.click('#btnSignIn');
+  await page.$eval('#btnSignIn', btn => btn.click());
   await page.waitForSelector('.load-more');
 
   let max = 100;
