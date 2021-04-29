@@ -1,5 +1,4 @@
 import { join } from 'path';
-import { setTimeout } from 'timers/promises';
 
 import * as Sentry from '@sentry/node';
 import delay from 'delay';
